@@ -262,7 +262,7 @@ def updateTiles(data) {
                         else {
                             for (valveDevice in getValveDevices(it.id)) {
                                 def deviceStationId = getStationFromDNI(valveDevice.deviceNetworkId)
-                                if (it.status.watering_status.current_station.toInteger() == deviceStationId.toInteger()) {
+                                if (it.status.watering_status.current_station?.toInteger() == deviceStationId.toInteger()) {
                                     if (valveDevice.currentValue("valve") != "open") {
                                         debugVerbose "Opening station ${deviceStationId}"
                                         valveDevice.sendEvent(name:"valve", value: "open")
@@ -323,17 +323,21 @@ def updateTiles(data) {
                     if (scheduled_auto_on) {
                         if (it.status.rain_delay > 0) {
                             d.sendEvent(name:"rain_icon", value: "rain")
-                            def nextRun = Date.parse("yyyy-MM-dd'T'HH:mm:ssX",it.status.next_start_time)
-                            def rainDelay = it.status.rain_delay
-                            use (TimeCategory) {
-                                nextRun = nextRun + rainDelay.hours
+                            if (it.status.next_start_time != null) {
+                                def nextRun = Date.parse("yyyy-MM-dd'T'HH:mm:ssX",it.status.next_start_time)
+                                def rainDelay = it.status.rain_delay
+                                use (TimeCategory) {
+                                    nextRun = nextRun + rainDelay.hours
+                                }
+                                d.sendEvent(name:"next_start_time", value: nextRun.getTime())
                             }
-                            d.sendEvent(name:"next_start_time", value: nextRun.getTime())
                         } 
                         else {
                             d.sendEvent(name:"rain_icon", value: "sun")
-                            def next_start_time_local = Date.parse("yyyy-MM-dd'T'HH:mm:ssX",it.status.next_start_time)
-                            d.sendEvent(name:"next_start_time", value: next_start_time_local.getTime())
+                            if (it.status.next_start_time != null) {
+                                def next_start_time_local = Date.parse("yyyy-MM-dd'T'HH:mm:ssX",it.status.next_start_time)
+                                d.sendEvent(name:"next_start_time", value: next_start_time_local.getTime())
+                            }
                         }
                     }
 
@@ -342,7 +346,7 @@ def updateTiles(data) {
                         def msgList = []
                         def start_timesList = []
                         def freqMsg
-                        stp.findAll{it.enabled.toBoolean()}.each {
+                        stp.findAll{it.enabled?.toBoolean()}.each {
                             def y = it.run_times.findAll{it.station == station}
                             start_timesList = []
                             if (y) {
