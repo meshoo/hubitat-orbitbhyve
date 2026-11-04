@@ -82,11 +82,11 @@ never store, log or send them anywhere.**
 | Hub | `lastConnectedAt`, `firmwareVersion`, `hardwareVersion`, `generation` (1/2), `networkInterface` | as named; `generation` from `mesh_id` vs `network_topology_id` |
 | Hub | `timerCount`, `timers` | devices sharing the hub's link ID |
 | Timer | `battery`, `batteryVoltage` (V), `batteryCharging` (if present), `lastBatteryAlarmAt` | `battery.*`, `status.last_battery_alarm_at` |
-| Timer | `healthStatus`, `lastConnectedAt`, `hub` | `is_connected`, `last_connected_at`, hub via link ID |
+| Timer | `healthStatus`, `connectivity` (online / offline / hub offline), `lastConnectedAt`, `hubName` | `is_connected`, `last_connected_at`, hub via link ID |
 | Timer | `rssi`, `radioPhy` | `status.rssi`, `status.phy` (XD only) |
 | Timer | `runMode`, `rainDelay`, `nextStartTime`, `nextStartPrograms`, `activeZone`, `wateringStatus`, `numStations`, `firmwareVersion`, `hardwareVersion`, `smartWatering` | `status.*` and top-level fields |
 | Zone | `valve`, `switch`, `station`, `zoneName`, `sprinklerType`, `numSprinklers`, `configured` | zone fields; `configured` = `num_sprinklers > 0` or has `sprinkler_type` |
-| Zone | `flowRateGpm`, `programs`, `lastWateringStart`, `lastWateringStatus`, `lastWateringVolume` (only when not null), `startTime`, `stopTime` | flow_data, programs, watering_events, websocket |
+| Zone | `flowRateGpm`, `programs`, `presetRuntime`, `lastActivity`, `lastWateringStart`, `lastWateringStatus`, `lastWateringVolume` (only when not null), `startTime`, `stopTime` | flow_data, programs, watering_events, websocket |
 
 ## Sources
 
