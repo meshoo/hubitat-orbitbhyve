@@ -1,19 +1,19 @@
 {
   "packageName": "Orbit BHyve Integration",
-  "author": "Kurt Sanders & Dominick Meglio",
-  "version": "1.8.0",
+  "author": "Kurt Sanders & Dominick Meglio (maintained fork: meshoo)",
+  "version": "1.8.1",
   "minimumHEVersion": "2.1.2",
-  "dateReleased": "2020-10-31",
-  "releaseNotes": "Added support for the switch capability courtesy of jpage4500.",
-  "licenseFile": "https://raw.githubusercontent.com/dcmeglio/hubitat-orbitbhyve/master/LICENSE",
-  "documentationLink": "https://github.com/dcmeglio/hubitat-orbitbhyve/blob/master/README.md",
+  "dateReleased": "2026-11-03",
+  "releaseNotes": "Maintained fork of dcmeglio/hubitat-orbitbhyve. Null-safety fixes: no more hourly 'Cannot invoke method toInteger() on null object on line 265 (method refresh)' when the B-hyve API omits current_station; also guards next_start_time, program enabled flags, battery events, and websocket payloads. Includes upstream PR #3 by Matthew Petro.",
+  "licenseFile": "https://raw.githubusercontent.com/meshoo/hubitat-orbitbhyve/master/LICENSE",
+  "documentationLink": "https://github.com/meshoo/hubitat-orbitbhyve/blob/master/README.md",
   "communityLink": "https://community.hubitat.com/t/release-orbit-bhyve-integration/48194",
   "apps": [
     {
       "id": "331ddb98-05c9-4d0f-a83c-643329e08462",
       "name": "Orbit Bhyve Controller",
       "namespace": "kurtsanders",
-      "location": "https://raw.githubusercontent.com/dcmeglio/hubitat-orbitbhyve/master/apps/orbit-bhyve-controller.groovy",
+      "location": "https://raw.githubusercontent.com/meshoo/hubitat-orbitbhyve/master/apps/orbit-bhyve-controller.groovy",
       "required": true,
       "oauth": false,
       "primary": true
@@ -24,14 +24,14 @@
       "id": "b762a9e6-b8d0-4cf2-acd1-1aba6a0d2f68",
       "name": "Orbit Bhyve Bridge",
       "namespace": "kurtsanders",
-      "location": "https://raw.githubusercontent.com/dcmeglio/hubitat-orbitbhyve/master/drivers/orbit-bhyve-bridge.groovy",
+      "location": "https://raw.githubusercontent.com/meshoo/hubitat-orbitbhyve/master/drivers/orbit-bhyve-bridge.groovy",
       "required": true
     },
     {
       "id": "cd9556ce-1b07-4c2f-9630-f28ea807ec59",
       "name": "Orbit Bhyve Sprinkler Timer",
       "namespace": "kurtsanders",
-      "location": "https://raw.githubusercontent.com/dcmeglio/hubitat-orbitbhyve/master/drivers/orbit-bhyve-sprinkler-timer.groovy",
+      "location": "https://raw.githubusercontent.com/meshoo/hubitat-orbitbhyve/master/drivers/orbit-bhyve-sprinkler-timer.groovy",
       "required": true
     }
   ]
