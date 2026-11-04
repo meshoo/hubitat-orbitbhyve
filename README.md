@@ -65,7 +65,7 @@ and doesn't interact with the controller app.
 2. *Apps* ▸ *Add User App* ▸ *B-hyve API Inspector*. Enter your B-hyve login and press **Fetch and redact**.
 3. Copy the output from the page, the logs, or *Settings ▸ File Manager ▸ bhyve-api-inspector.json*.
    **Read it before sharing.** IDs become `ID-n` tokens, names become `Name-n`, and MACs,
-   addresses, locations, time zones and tokens are removed.
+   addresses, locations, time zones, tokens and Bluetooth network keys are removed.
 4. Uninstall the app when you're done.
 
 ---

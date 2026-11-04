@@ -27,7 +27,7 @@ APP_ID_HEADER = {"orbit-app-id": "Orbit Support Dashboard"}
 ID_KEYS = {"id", "mesh_id", "device_id", "user_id", "program_id", "station_id",
            "weather_station_id", "weather_forecast_location_id", "et_id", "landscape_id"}
 SENSITIVE = re.compile(
-    r"(?i).*(mac|token|api_key|secret|password|serial|email|address|location|coordinat|latitude|longitude|"
+    r"(?i).*(mac|token|key|secret|credential|auth|password|serial|email|address|location|coordinat|latitude|longitude|"
     r"gateway|reference|image|photo|postal|^zip|_zip|^city$|_city$|country|phone|ssid|^ip$|_ip$|^ip_|"
     r"timezone_id|timezone_name|^lat$|^lng$|^lon$).*")
 
@@ -39,6 +39,14 @@ def is_sensitive(key):
 def is_id_key(key):
     k = key.lower()
     return k in ID_KEYS or k.endswith("_ids") or (k.endswith("_id") and not is_sensitive(k))
+
+
+SECRET_VALUE = re.compile(r"[A-Za-z0-9+/=]{16,}")
+
+
+def looks_secret(value):
+    """Catch keys/tokens whatever their field name: long base64/hex-like strings containing a digit."""
+    return SECRET_VALUE.fullmatch(value) is not None and any(c.isdigit() for c in value)
 
 
 def is_name_key(key):
@@ -67,6 +75,8 @@ class Redactor:
             return {k: self.redact(v, str(k)) for k, v in value.items()}
         if isinstance(value, list):
             return [self.redact(i, key if key is not None and is_id_key(key) else None) for i in value]
+        if isinstance(value, str) and looks_secret(value):
+            return "<redacted-value>"
         return value
 
     def redact_text(self, text):
@@ -114,10 +124,10 @@ def summarize(devices):
             "zone_stations": [z.get("station") if isinstance(z, dict) else None for z in zones],
             "has_mesh": d.get("mesh_id") is not None,
             "has_battery": battery is not None,
-            "battery_keys": sorted(battery.keys()) if isinstance(battery, dict) else None,
+            "battery_fields": sorted(battery.keys()) if isinstance(battery, dict) else None,
             "is_connected": d.get("is_connected"),
-            "top_level_keys": sorted(d.keys()),
-            "status_keys": sorted(status.keys()) if status else None,
+            "top_level_fields": sorted(d.keys()),
+            "status_fields": sorted(status.keys()) if status else None,
             "watering_status": status.get("watering_status") if status else None,
         })
     return out
@@ -155,6 +165,16 @@ def main(argv):
         status, data = request("GET", "meshes/%s" % m, key)
         report["requests"]["meshes/%s" % m] = status
         report["meshes"].append({"mesh_id": m, "response": data})
+
+    topo_ids = []
+    for d in device_list:
+        if isinstance(d, dict) and d.get("network_topology_id") and d["network_topology_id"] not in topo_ids:
+            topo_ids.append(d["network_topology_id"])
+    report["network_topologies"] = []
+    for t in topo_ids:
+        status, data = request("GET", "network_topologies/%s" % t, key)
+        report["requests"]["network_topologies/%s" % t] = status
+        report["network_topologies"].append({"network_topology_id": t, "response": data})
 
     report["programs"], report["watering_events"] = [], []
     for d in device_list:

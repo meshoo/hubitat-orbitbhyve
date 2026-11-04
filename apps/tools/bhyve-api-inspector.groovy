@@ -32,7 +32,7 @@ import groovy.transform.Field
 
 // Keys (case-insensitive regex) whose values are removed entirely.
 @Field static final String sensitiveKeyPattern =
-    /(?i).*(mac|token|api_key|secret|password|serial|email|address|location|coordinat|latitude|longitude|gateway|reference|image|photo|postal|^zip|_zip|^city$|_city$|country|phone|ssid|^ip$|_ip$|^ip_|timezone_id|timezone_name|^lat$|^lng$|^lon$).*/
+    /(?i).*(mac|token|key|secret|credential|auth|password|serial|email|address|location|coordinat|latitude|longitude|gateway|reference|image|photo|postal|^zip|_zip|^city$|_city$|country|phone|ssid|^ip$|_ip$|^ip_|timezone_id|timezone_name|^lat$|^lng$|^lon$).*/
 
 definition(
     name:        "B-hyve API Inspector",
@@ -128,6 +128,15 @@ def runInspection() {
         report.meshes << [mesh_id: meshId, response: r.data]
     }
 
+    // Gen 2 hubs link to their timers by network_topology_id instead of mesh_id.
+    def topoIds = deviceList.collect { it instanceof Map ? it.network_topology_id : null }.findAll { it }.unique()
+    report.network_topologies = []
+    topoIds.each { topoId ->
+        def r = apiGet(session, "network_topologies/${topoId}", null)
+        report.requests["network_topologies/${topoId}"] = r.summary
+        report.network_topologies << [network_topology_id: topoId, response: r.data]
+    }
+
     // Per sprinkler timer: programs and the most recent watering events.
     report.programs = []
     report.watering_events = []
@@ -187,10 +196,10 @@ def summarize(List deviceList) {
             zone_stations     : zones.collect { it instanceof Map ? it.station : null },
             has_mesh          : d.mesh_id != null,
             has_battery       : d.battery != null,
-            battery_keys      : (d.battery instanceof Map) ? d.battery.keySet().sort() : null,
+            battery_fields      : (d.battery instanceof Map) ? d.battery.keySet().sort() : null,
             is_connected      : d.is_connected,
-            top_level_keys    : d.keySet().sort(),
-            status_keys       : (d.status instanceof Map) ? d.status.keySet().sort() : null,
+            top_level_fields    : d.keySet().sort(),
+            status_fields       : (d.status instanceof Map) ? d.status.keySet().sort() : null,
             watering_status   : (d.status instanceof Map) ? d.status.watering_status : null
         ]
     }
@@ -275,6 +284,10 @@ def redact(value, String key, Map ctx) {
     if (value instanceof List) {
         // Lists of IDs under an ID-ish key (e.g. "device_ids") keep the key's meaning.
         return value.collect { item -> redact(item, (key != null && isIdKey(key)) ? key : null, ctx) }
+    }
+    // Catch keys/tokens whatever their field name: long base64/hex-like strings containing a digit.
+    if (value instanceof String && value ==~ /[A-Za-z0-9+\/=]{16,}/ && value ==~ /.*[0-9].*/) {
+        return "<redacted-value>"
     }
     return value
 }
