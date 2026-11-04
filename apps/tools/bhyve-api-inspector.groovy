@@ -185,7 +185,7 @@ def summarize(List deviceList) {
             num_stations      : d.num_stations,
             zone_count        : zones.size(),
             zone_stations     : zones.collect { it instanceof Map ? it.station : null },
-            has_mesh_id       : d.mesh_id != null,
+            has_mesh          : d.mesh_id != null,
             has_battery       : d.battery != null,
             battery_keys      : (d.battery instanceof Map) ? d.battery.keySet().sort() : null,
             is_connected      : d.is_connected,
