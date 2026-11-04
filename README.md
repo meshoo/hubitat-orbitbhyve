@@ -54,6 +54,20 @@ timer's zones resume updating on the next scheduled refresh.
   *Import* with the raw URL of the matching file from this repo, and save. Your existing app
   and devices are kept.
 
+### Diagnostics: B-hyve API Inspector
+
+`apps/tools/bhyve-api-inspector.groovy` is a stand-alone, temporary app that dumps a **redacted** copy of
+your B-hyve API data (devices, hubs/meshes, programs, recent watering events). It is used to check the
+device model for the upcoming v2 (see `docs/bhyve-api-model.md`). It changes nothing in your account
+and doesn't interact with the controller app.
+
+1. *Apps Code* ▸ *New App* ▸ paste the file ▸ *Save*.
+2. *Apps* ▸ *Add User App* ▸ *B-hyve API Inspector*. Enter your B-hyve login and press **Fetch and redact**.
+3. Copy the output from the page, the logs, or *Settings ▸ File Manager ▸ bhyve-api-inspector.json*.
+   **Read it before sharing.** IDs become `ID-n` tokens, names become `Name-n`, and MACs,
+   addresses, locations, time zones and tokens are removed.
+4. Uninstall the app when you're done.
+
 ---
 
 Based on Kurt Sander's SmartThings integration, https://github.com/KurtSanders/STOrbitBhyveController but adds support for some HE
