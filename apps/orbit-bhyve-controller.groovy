@@ -2,6 +2,7 @@
 * Orbit™ B•Hyve™ Controller
 * 2019 (c) SanderSoft™
 * 2020 (c) Dominick Meglio (Hubitat port and significant rewrites)
+* Null-safety fixes: 2025 Matthew Petro; 2026 meshoo/hubitat-orbitbhyve fork (see README, "About this fork").
 *
 * Author:   Kurt Sanders
 * Email:	Kurt@KurtSanders.com
@@ -158,7 +159,7 @@ def rain_delayHandler(evt) {
         send_message("The ${evt.linkText}'s rain delay is now ${evt.value} hours at ${timestamp()}")
 }
 def batteryHandler(evt) {
-    if (evt.isStateChange && (evt.value.toInteger() <= 40) ) 
+    if (evt.isStateChange && evt.value?.isNumber() && evt.value.toBigDecimal() <= 40) 
         send_message("The ${evt.linkText}'s battery is now at ${evt.value}% at ${timestamp()}")
 }
 def is_connectedHandler(evt) {
@@ -173,7 +174,7 @@ def refreshLastWateringAmount(device_id) {
         def latestIrrigation = mostRecentWatering.irrigation[-1] ?: null
         if (latestIrrigation != null) {
             def wateringEventStationDev = getDeviceByIdAndStation(device_id, latestIrrigation.station)
-            wateringEventStationDev.sendEvent(name: "last_watering_volume", value: latestIrrigation.water_volume_gal?:0, unit: "gal")
+            wateringEventStationDev?.sendEvent(name: "last_watering_volume", value: latestIrrigation.water_volume_gal?:0, unit: "gal")
         }
     }
 }
@@ -243,7 +244,7 @@ def updateTiles(data) {
                         if (it.status.watering_status.stations != null) {
                             for (valveDevice in getValveDevices(it.id)) {
                                 def deviceStationId = getStationFromDNI(valveDevice.deviceNetworkId)
-                                if (it.status.watering_status.stations.find { s -> s.station.toInteger() == deviceStationId.toInteger()}) {
+                                if (it.status.watering_status.stations.find { s -> s.station != null && s.station.toInteger() == deviceStationId.toInteger()}) {
                                     if (valveDevice.currentValue("valve") != "open") {
                                         debugVerbose "Opening station ${deviceStationId}"
                                         valveDevice.sendEvent(name:"valve", value: "open")
@@ -730,7 +731,8 @@ def getDeviceById(deviceId) {
 }
 
 def getDeviceByIdAndStation(deviceId, station) {
-    return getChildDevices().find { getOrbitDeviceIdFromDNI(it.deviceNetworkId) == deviceId && it.currentValue("station").toInteger() == station.toInteger() }
+    if (station == null) return null
+    return getChildDevices().find { getOrbitDeviceIdFromDNI(it.deviceNetworkId) == deviceId && it.currentValue("station")?.toInteger() == station.toInteger() }
 }
 
 def triggerLowBattery(dev) {

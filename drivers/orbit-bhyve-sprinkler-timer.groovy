@@ -3,6 +3,7 @@
 *  Author:  Kurt Sanders & Dominick Meglio
 *  Email:   Kurt@KurtSanders.com
 *  Date:    3/2019
+*  Null-safety fixes: 2025 Matthew Petro; 2026 meshoo/hubitat-orbitbhyve fork (see README, "About this fork").
 *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 *  in compliance with the License. You may obtain a copy of the License at:
 *
@@ -177,7 +178,7 @@ def parse(String message) {
             if (dev) {
                 dev.sendEvent(name: "last_watering_volume", value: 0, unit: "gal")
                 dev.sendEvent(name: "start_time", value: now())
-                dev.sendEvent(name: "stop_time", value: now()+((payload.run_time+1)*60*1000))
+                dev.sendEvent(name: "stop_time", value: now()+(((payload.run_time ?: 0)+1)*60*1000))
                 synchronized (wateringLock) {
                     dev.sendEvent(name: "valve", value: "open")
                     dev.sendEvent(name: "switch", value: "on")
@@ -246,6 +247,7 @@ def parse(String message) {
                 dev*.sendEvent(name: "water_flow_rate", value: payload.flow_rate_gpm)
             break
         case "set_manual_preset_time":
+            if (payload.seconds == null) break
             def presetWateringInt = payload.seconds.toInteger()/60
             def dev = parent.getDeviceById(payload.device_id)
             if (dev) {
