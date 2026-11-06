@@ -1,0 +1,53 @@
+{
+  "packageName": "B-hyve v2",
+  "packageId": "0a4a7fe4-bda6-4b2d-b8c4-48a89508f328",
+  "author": "meshoo/hubitat-orbitbhyve contributors (based on work by Kurt Sanders and Dominick Meglio)",
+  "version": "2.0.0-beta.1",
+  "minimumHEVersion": "2.3.0",
+  "dateReleased": "2026-11-04",
+  "releaseNotes": "BREAKING: new, separate app. Models B-hyve hardware as Hub -> Timer -> Zone devices. Battery, connectivity and Bluetooth signal live on the Timer (one per physical timer); each outlet is a Zone child device with valve/switch control, schedule and a readable lastActivity line. Gen 1 (mesh) and Gen 2 (network topology) hubs are linked to their timers. Installs alongside Orbit Bhyve Controller 1.8.x; see the README for the migration steps.",
+  "licenseFile": "https://raw.githubusercontent.com/meshoo/hubitat-orbitbhyve/master/LICENSE",
+  "documentationLink": "https://github.com/meshoo/hubitat-orbitbhyve/blob/master/README.md",
+  "communityLink": "https://community.hubitat.com/t/release-orbit-bhyve-integration/48194",
+  "apps": [
+    {
+      "id": "6049e528-d53c-4a9b-9b6c-91f9c4d0302f",
+      "name": "B-hyve v2",
+      "namespace": "meshoo",
+      "location": "https://raw.githubusercontent.com/meshoo/hubitat-orbitbhyve/master/v2/apps/bhyve-v2.groovy",
+      "required": true,
+      "oauth": false,
+      "primary": true
+    }
+  ],
+  "drivers": [
+    {
+      "id": "84ed6d40-b8bd-46dd-aa89-d151d23d04de",
+      "name": "B-hyve v2 Cloud Connection",
+      "namespace": "meshoo",
+      "location": "https://raw.githubusercontent.com/meshoo/hubitat-orbitbhyve/master/v2/drivers/bhyve-v2-cloud.groovy",
+      "required": true
+    },
+    {
+      "id": "e0dc9264-2942-4d1f-85de-80a8a8611eca",
+      "name": "B-hyve v2 Wi-Fi Hub",
+      "namespace": "meshoo",
+      "location": "https://raw.githubusercontent.com/meshoo/hubitat-orbitbhyve/master/v2/drivers/bhyve-v2-hub.groovy",
+      "required": true
+    },
+    {
+      "id": "24f836d3-e2b7-4a0d-bbd4-ccfe17b713f2",
+      "name": "B-hyve v2 Timer",
+      "namespace": "meshoo",
+      "location": "https://raw.githubusercontent.com/meshoo/hubitat-orbitbhyve/master/v2/drivers/bhyve-v2-timer.groovy",
+      "required": true
+    },
+    {
+      "id": "185c034c-6220-4b8f-93a8-41c77c3e9aea",
+      "name": "B-hyve v2 Zone",
+      "namespace": "meshoo",
+      "location": "https://raw.githubusercontent.com/meshoo/hubitat-orbitbhyve/master/v2/drivers/bhyve-v2-zone.groovy",
+      "required": true
+    }
+  ]
+}
