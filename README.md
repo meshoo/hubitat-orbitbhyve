@@ -69,8 +69,10 @@ v2 has its own names, namespace (`meshoo`) and package IDs, so it installs **alo
 ### Status
 
 Beta. All files compile with Groovy 2.4, and a scripted test runs the app and drivers against API data
-shaped like a real Gen 1 + HT25 and Gen 2 + XD 4-outlet account. It has **not** yet been run on a real
-hub, so please report problems.
+shaped like a real Gen 1 + HT25 and Gen 2 + XD 4-outlet account. It has also been run on a real hub with
+that hardware: device creation, polling, and a manual XD zone run started from Hubitat and from the
+B-hyve app all worked. Notifications, `setRainDelay`, `setRunMode` and HT25 watering haven't been tested
+on real hardware yet, so please report problems.
 
 ## About this fork
 
