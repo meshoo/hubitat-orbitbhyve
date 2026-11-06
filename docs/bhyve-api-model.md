@@ -46,7 +46,7 @@ never store, log or send them anywhere.**
 | Timer | `status.rssi` (dBm), `status.phy`, `status.provisioned` | XD only | Bluetooth link to the hub (`phy` e.g. `le_coded_s8_125`) |
 | Timer | `firmware_version`, `hardware_version`, `num_stations` | both | |
 | Timer | `status.run_mode`, `status.rain_delay`, `status.rain_delay_started_at` | both | |
-| Timer | `status.next_start_time`, `status.next_start_programs` | HT25 (absent on XD when no program is enabled) | |
+| Timer | `status.next_start_time`, `status.next_start_programs` | HT25 (absent on XD when no program is enabled) | an HT25 with no enabled program keeps its last start, so the time can be in the past |
 | Timer | `status.watering_status`, `status.watering_statuses[]`, `status["watering-status"]` | both | null or empty when idle; three spellings exist, so check all |
 | Timer | `manual_preset_runtime_sec` | HT25 | |
 | Timer | `smart_watering_enabled`, `water_sense_mode` | XD / both | |
@@ -57,13 +57,26 @@ never store, log or send them anywhere.**
 | Zone | programs: `sprinkler_timer_programs[].run_times[] {station, run_time}`, `enabled`, `frequency {type: days/even/odd/interval}`, `start_times[]` | both | |
 | Zone | history: `watering_events/{device_id}[].irrigation[] {station, start_time, run_time, status (complete/skipped), water_volume_gal, program, program_name}` | both | `water_volume_gal` is **null on the XD** |
 
-## Websocket events (from v1 and other projects; not re-verified here)
+## Websocket events
 
-`watering_in_progress_notification` (`current_station`, `run_time`), `watering_complete`,
-`device_connected`, `device_disconnected`, `change_mode` (`mode`, optional `stations[]`), `rain_delay`
-(`delay`), `low_battery`, `clear_low_battery`, `battery_status`, `fault`, `flow_sensor_state_changed`
-(`flow_rate_gpm`), `set_manual_preset_runtime` / `set_manual_preset_time`, `program_changed`,
-`device_idle`, `fs_status_update` (flood sensor).
+Confirmed on an XD 4-outlet timer (Nov 2026), for a manual run started from Hubitat and from the phone
+app. Top-level field names; every event also has `event`, `device_id` and `timestamp`:
+
+| Event | Other fields seen |
+|---|---|
+| `change_mode` | `mode`; `stations` when a run starts, absent when it returns to auto |
+| `watering_in_progress_notification` | `current_station`, `run_time`, `program`, `status`, `started_watering_station_at`, `total_run_time_sec`, `water_event_queue`, `rain_sensor_hold` |
+| `watering_complete` | `program`, `stream-id`, `gateway-topic`; **no station** |
+| `battery_status` | `mv`, `charging`, `stream-id`, `client-topics`; **no percent** |
+| `rain_delay` | `delay`, `rain_delay_cause`, `rain_delay_weather_type` |
+
+`battery_status` and `rain_delay` arrive with every run start and stop, and at other times when no run
+is active, so they don't always mean anything changed.
+
+Not re-verified (from v1 and other projects): `device_connected`, `device_disconnected`, `low_battery`,
+`clear_low_battery`, `fault`, `flow_sensor_state_changed` (`flow_rate_gpm`),
+`set_manual_preset_runtime` / `set_manual_preset_time`, `program_changed`, `device_idle`,
+`fs_status_update` (flood sensor).
 
 ## How 1.8.x models it, and what's wrong
 
