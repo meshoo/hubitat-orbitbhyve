@@ -60,7 +60,7 @@ def fixture(Map o = [:]) {
     def ht25 = [id: "t25", type: "sprinkler_timer", name: "Front Hose", mesh_id: "mesh1", num_stations: 1, is_connected: o.t25Online != false, hardware_version: "HT25-0000",
                 battery: [percent: 42, charging: false, mv: 2655], manual_preset_runtime_sec: 600,
                 status: [run_mode: "auto", next_start_programs: ["a"], watering_status: null, "watering-status": null, watering_statuses: [], rain_delay: 0,
-                         next_start_time: "2026-09-23T07:50:00-07:00", last_battery_alarm_at: "2026-08-09T17:24:49.104Z"],
+                         next_start_time: "2027-02-03T07:50:00-07:00", last_battery_alarm_at: "2026-08-09T17:24:49.104Z"],
                 zones: [[station: 1, name: "Drip Beds", num_sprinklers: 10, sprinkler_type: "drip", flow_data: [flow_rate_gpm: 1.81886, cycle_volume_gal: 0.45]]]]
     def hub2 = [id: "hub2", type: "bridge", name: "Patio Hub", network_topology_id: "topo1", network_interface: "wifi", is_connected: true, hardware_version: "BH1G2-0002",
                 status: [rain_delay: 0, run_mode: "auto", watering_status: null]]
@@ -123,7 +123,7 @@ check "XD rssi -69 and phy", xd.attrs.rssi == -69 && xd.attrs.radioPhy == "le_co
 check "zone 4 unconfigured (${z(xd, 4).attrs.configured}, ${z(xd, 4).attrs.sprinklerType})", z(xd, 4).attrs.configured == "no"
 check "zone programs: ${z(xd, 2).attrs.programs}", z(xd, 2).attrs.programs == "Evens (program A): 20 min every even day at 8:45 am"
 check "zone 4 programs: ${z(xd, 4).attrs.programs}", z(xd, 4).attrs.programs == "none enabled"
-check "HT25 next start: ${t25.attrs.nextStartTime}; flow ${z(t25, 1).attrs.flowRateGpm}", t25.attrs.nextStartTime.startsWith("Wed Sep 23, 7:50") && z(t25, 1).attrs.flowRateGpm == 1.82G
+check "HT25 next start: ${t25.attrs.nextStartTime}; flow ${z(t25, 1).attrs.flowRateGpm}", t25.attrs.nextStartTime.startsWith("Wed Feb 3, 7:50") && z(t25, 1).attrs.flowRateGpm == 1.82G
 check "hub1 next_start 1970 sentinel not shown on timers; XD nextStart 'none' (${xd.attrs.nextStartTime})", xd.attrs.nextStartTime == "none"
 check "history applied: XD zone 2 lastActivity = ${z(xd, 2).attrs.lastActivity}", z(xd, 2).attrs.lastActivity?.startsWith("Watered (20 min, Evens (program A)), ")
 check "skipped history: ${z(xd, 3).attrs.lastActivity}", z(xd, 3).attrs.lastActivity?.startsWith("Skipped (Manual (manual)), ")
@@ -199,7 +199,15 @@ apiState.devices = d2; appDev.script.refresh()
 check "auto-labelled zone renamed: ${z(xd, 1).label}", z(xd, 1).label == "Backyard XD – Roses"
 check "user-renamed zone kept: ${z(xd, 2).label}", z(xd, 2).label == "My custom name"
 
-println "7. Stale devices"
+println "7. Next start time already in the past (HT25 with no enabled program)"
+def clockBefore = clock
+clock = Date.parse("yyyy-MM-dd", "2027-03-01").time
+apiState.devices = fixture()
+appDev.script.refresh()
+check "past next start -> none (${t25.attrs.nextStartTime}, programs ${t25.attrs.nextStartPrograms})", t25.attrs.nextStartTime == "none" && t25.attrs.nextStartPrograms == "none"
+clock = clockBefore
+
+println "8. Stale devices"
 apiState.devices = fixture().findAll { it.id != "t25" }
 appDev.script.refresh()
 check "HT25 reported stale", appDev.script.staleChildren()*.deviceNetworkId == ["bhyve2-42-t25"]

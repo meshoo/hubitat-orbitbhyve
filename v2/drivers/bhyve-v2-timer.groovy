@@ -120,8 +120,9 @@ def applyTimer(Map d, List programs, Map ctx) {
     def runMode = status.run_mode?.toString()
     if (runMode) sendEvent(name: "runMode", value: runMode)
     applyRainDelay(toInt(status.rain_delay))
-    sendEvent(name: "nextStartTime", value: nextStartText(status, runMode))
-    def nsp = (status.next_start_programs instanceof List) ? status.next_start_programs : []
+    String nextStart = nextStartText(status, runMode)
+    sendEvent(name: "nextStartTime", value: nextStart)
+    def nsp = (status.next_start_programs instanceof List && nextStart != "none") ? status.next_start_programs : []
     sendEvent(name: "nextStartPrograms", value: nsp ? nsp.collect { it.toString().toUpperCase() }.join(", ") : "none")
 
     def presetSec = toInt(d.manual_preset_runtime_sec)
@@ -377,7 +378,8 @@ void applyRainDelay(Integer hours) {
 String nextStartText(Map status, String runMode) {
     if (runMode == "off") return "off"
     def next = parseIso(status.next_start_time?.toString())
-    if (next == null || next.getTime() < 946684800000L) return "none"  // 1970 sentinel on some models
+    // Some models send a 1970 sentinel; an HT25 with no enabled program keeps its last, long-past start.
+    if (next == null || next.getTime() < now()) return "none"
     return fmt(next)
 }
 
