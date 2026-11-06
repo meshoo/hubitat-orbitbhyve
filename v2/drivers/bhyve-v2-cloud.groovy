@@ -158,7 +158,8 @@ def parse(String message) {
     if (!(payload instanceof Map)) return
     sendEvent(name: "lastEventAt", value: new Date().format("yyyy-MM-dd'T'HH:mm:ssXXX", location.timeZone))
     if (payload.event in ["pong", "ping"]) return
-    logDebug "Event: ${payload.event} for device ${payload.device_id ? '(set)' : '(none)'}"
+    // Field names only: values can identify the account.
+    logDebug "Event: ${payload.event}; fields: ${payload.keySet().sort().join(', ')}"
     parent?.handleEvent(payload)
 }
 
